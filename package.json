@@ -1,0 +1,25 @@
+{
+  "name": "solana-token-manager",
+  "version": "1.0.0",
+  "description": "A CLI tool for managing Solana tokens",
+  "main": "cli/src/index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node -r ./cli/node-options.js --no-warnings ./node_modules/ts-node/dist/bin.js cli/src/index.ts",
+    "dev": "node -r ./cli/node-options.js --no-warnings ./node_modules/ts-node-dev/lib/bin.js --respawn cli/src/index.ts"
+  },
+  "dependencies": {
+    "@solana/spl-token": "^0.3.9",
+    "@solana/web3.js": "^1.87.6",
+    "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.3",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "NNN",
+  "symbol": "NNN",
+  "mint": "CnQD5X6GTbRkqFtBXNK71QdpFBi4QE5CyzNDAoYVvjHN",
+  "owner": "4K4SxryYsrU2oLEhqwHa7v7iyfTw61JBLnZNdtzFwCtk",
+  "decimals": 9,
+  "initialSupply": 1000000,
+  "network": "devnet",
+  "createdAt": "2024-11-21T04:57:59.281Z"
+}

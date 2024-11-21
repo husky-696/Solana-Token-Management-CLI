@@ -1,0 +1,10 @@
+{
+  "name": "onii",
+  "symbol": "ONI",
+  "mint": "7x6CX3HKJVPLAiJkud6CJYZyHG9vsA7qGJTgfw1KVd5M",
+  "owner": "4K4SxryYsrU2oLEhqwHa7v7iyfTw61JBLnZNdtzFwCtk",
+  "decimals": 8,
+  "initialSupply": 1000000,
+  "network": "devnet",
+  "createdAt": "2024-11-21T05:04:07.796Z"
+}
