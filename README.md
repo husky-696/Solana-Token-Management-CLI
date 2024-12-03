@@ -1,28 +1,30 @@
-# Solana Token Manager CLI
+# Solana Token Management CLI
 
-A command-line interface (CLI) tool for creating and managing SPL tokens on Solana.
+A command-line interface (CLI) tool for creating and managing SPL tokens on the Solana blockchain. This tool supports both Devnet and Mainnet operations with a user-friendly interface.
 
 ## Features
 
-- Create new SPL tokens with custom metadata
-- Transfer tokens between accounts
-- Burn tokens
-- Check token balances
-- Works with both Devnet (testing) and Mainnet
-- Simple command-line interface
+- 🪙 Create SPL tokens with custom supply and decimals
+- 📝 Manage token metadata (create/update)
+- 💸 Transfer tokens between wallets
+- 🔥 Burn tokens
+- 💰 Check token balances
+- 🌐 Support for both Devnet and Mainnet
+- 💧 Request SOL airdrop (Devnet only)
 
 ## Prerequisites
 
-1. Install Node.js (version 16 or higher)
-2. A Solana wallet keypair file
-3. Some SOL for transactions
+- Node.js (v16 or higher)
+- npm or yarn
+- Solana CLI tools
+- A Solana wallet keypair file
 
 ## Installation
 
-1. Clone the repository:
+1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/token-managment.git
-cd token-managment
+git clone https://github.com/husky-696/Solana-Token-Management-CLI.git
+cd Solana-Token-Management-CLI
 ```
 
 2. Install dependencies:
@@ -30,86 +32,99 @@ cd token-managment
 npm install
 ```
 
-3. Build the project:
-```bash
-npm run build
+3. Configure your wallet:
+- Place your wallet keypair JSON file in the `cli` directory
+- Update `wallet-config.json` with your wallet file path
+
+## Configuration
+
+The app uses two main configuration files:
+
+1. `wallet-config.json`:
+```json
+{
+    "walletPath": "path/to/your/wallet.json"
+}
 ```
+
+2. Environment variables (optional):
+- `SOLANA_NETWORK`: 'devnet' or 'mainnet-beta' (default: 'devnet')
+- `SOLANA_RPC_URL`: Custom RPC endpoint (optional)
 
 ## Usage
 
-### Global Options
-- `-n, --network <string>`: Solana network (devnet/mainnet-beta) (default: "devnet")
-- `-u, --rpc-url <string>`: Custom RPC URL
+1. Start the application:
+```bash
+npm start
+```
+
+2. Available options in the menu:
+- Create New Token
+- Transfer Tokens
+- Burn Tokens
+- Check Token Balance
+- Create Token Metadata
+- Update Token Metadata
+- Request Devnet Airdrop (only on devnet)
+- Help
+- Exit
 
 ### Creating a Token
-```bash
-solana-token-cli create-token -w ./wallet.json -n "My Token" -s MT -a 1000000
-```
-Options:
-- `-w, --wallet <path>`: Path to wallet keypair file
-- `-n, --name <string>`: Token name
-- `-s, --symbol <string>`: Token symbol
-- `-a, --amount <number>`: Initial token supply
-- `-d, --decimals <number>`: Token decimals (default: 9)
 
-### Transferring Tokens
-```bash
-solana-token-cli transfer -w ./wallet.json -m <MINT_ADDRESS> -r <RECIPIENT_ADDRESS> -a 100
-```
-Options:
-- `-w, --wallet <path>`: Path to wallet keypair file
-- `-m, --mint <string>`: Token mint address
-- `-r, --recipient <string>`: Recipient wallet address
-- `-a, --amount <number>`: Amount to transfer
+1. Select "Create New Token" from the menu
+2. Enter token details:
+   - Name
+   - Symbol
+   - Initial supply
+   - Decimals (default: 9)
 
-### Checking Token Balance
-```bash
-solana-token-cli balance -w ./wallet.json -m <MINT_ADDRESS>
-```
-Options:
-- `-w, --wallet <path>`: Path to wallet keypair file
-- `-m, --mint <string>`: Token mint address
+### Managing Token Metadata
 
-### Burning Tokens
-```bash
-solana-token-cli burn -w ./wallet.json -m <MINT_ADDRESS> -a 100
-```
-Options:
-- `-w, --wallet <path>`: Path to wallet keypair file
-- `-m, --mint <string>`: Token mint address
-- `-a, --amount <number>`: Amount to burn
-
-## Testing on Devnet
-
-For testing, use Devnet first:
-
-1. Get free SOL for testing:
-```bash
-solana airdrop 2 YOUR_WALLET_ADDRESS --url devnet
+Token metadata is stored in the `tokens` directory as JSON files:
+```json
+{
+    "name": "Token Name",
+    "symbol": "TKN",
+    "mint": "token_mint_address",
+    "decimals": 9,
+    "initialSupply": 1000000,
+    "network": "devnet",
+    "createdAt": "timestamp"
+}
 ```
 
-2. Create a test token:
-```bash
-solana-token-cli create-token -w ./wallet.json -n "Test Token" -s TEST -a 1000000
-```
+## Network Support
 
-## Going to Mainnet
+- **Devnet**: Use for testing with free airdropped SOL
+- **Mainnet**: Use for production tokens (requires real SOL)
 
-When you're ready to create real tokens:
+To switch networks, update the `SOLANA_NETWORK` environment variable.
 
-1. Use the `--network` option:
-```bash
-solana-token-cli create-token --network mainnet-beta -w ./wallet.json -n "My Token" -s MT -a 1000000
-```
+## Troubleshooting
 
-2. Ensure you have enough SOL in your wallet for the transaction fees.
+1. **Insufficient SOL Balance**
+   - On devnet: Use the "Request Devnet Airdrop" option
+   - On mainnet: Transfer real SOL to your wallet
 
-## Fees (Approximate)
+2. **Transaction Errors**
+   - Verify your wallet has sufficient SOL for transaction fees
+   - Check network status and connection
+   - Ensure correct wallet permissions
 
-Devnet:
-- Free (use airdrop for testing)
+## Security Notes
 
-Mainnet:
-- Token Creation: ~0.05-0.1 SOL
-- Token Transfer: ~0.000005 SOL
-- Token Burn: ~0.000005 SOL
+- Keep your wallet keypair file secure and never share it
+- Double-check all transaction details before confirming
+- Back up token mint addresses and metadata
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+If you encounter any issues or have questions, please open an issue on GitHub.

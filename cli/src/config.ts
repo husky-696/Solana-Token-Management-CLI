@@ -269,3 +269,28 @@ export async function calculateMainnetFees(
         return config.network === 'mainnet-beta' ? 0.01 : 0.001;
     }
 }
+
+// Add RPC fallback support
+export const BACKUP_RPC_URLS = process.env.BACKUP_RPC_URLS?.split(',') || [];
+
+export async function getConnectionWithFallback(): Promise<Connection> {
+    const endpoints = [config.rpcUrl, ...BACKUP_RPC_URLS].filter((endpoint): endpoint is string => !!endpoint);
+    
+    for (const endpoint of endpoints) {
+        try {
+            const connection = new Connection(endpoint, {
+                commitment: config.network === 'mainnet-beta' ? 'finalized' : 'confirmed',
+                confirmTransactionInitialTimeout: 60000
+            });
+            
+            // Test connection
+            await connection.getLatestBlockhash();
+            return connection;
+        } catch (error) {
+            console.warn(`RPC endpoint ${endpoint} failed, trying next...`);
+        }
+    }
+    
+    // If all endpoints fail, use default cluster URL
+    return new Connection(clusterApiUrl(config.network));
+}

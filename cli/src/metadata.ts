@@ -96,32 +96,47 @@ export class MetadataManager {
         }
     }
 
-    async createMetadata(
+    private async prepareMetadataTransaction(
         mint: PublicKey,
         metadata: TokenMetadata,
-        payer: Keypair
-    ): Promise<string> {
-        try {
-            const [metadataAddress] = PublicKey.findProgramAddressSync(
-                [
-                    Buffer.from('metadata'),
-                    TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-                    mint.toBuffer(),
-                ],
-                TOKEN_METADATA_PROGRAM_ID
-            );
+        payer: Keypair,
+        isUpdate: boolean
+    ): Promise<Transaction> {
+        const [metadataAddress] = PublicKey.findProgramAddressSync(
+            [
+                Buffer.from('metadata'),
+                TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+                mint.toBuffer(),
+            ],
+            TOKEN_METADATA_PROGRAM_ID
+        );
 
-            const data: DataV2 = {
-                name: metadata.name,
-                symbol: metadata.symbol,
-                uri: metadata.uri,
-                sellerFeeBasisPoints: metadata.sellerFeeBasisPoints || 0,
-                creators: metadata.creators || null,
-                collection: null,
-                uses: null
-            };
+        const data: DataV2 = {
+            name: metadata.name,
+            symbol: metadata.symbol,
+            uri: metadata.uri,
+            sellerFeeBasisPoints: metadata.sellerFeeBasisPoints || 0,
+            creators: metadata.creators || null,
+            collection: null,
+            uses: null
+        };
 
-            const instruction = createCreateMetadataAccountV3Instruction(
+        const instruction = isUpdate
+            ? createUpdateMetadataAccountV2Instruction(
+                {
+                    metadata: metadataAddress,
+                    updateAuthority: payer.publicKey,
+                },
+                {
+                    updateMetadataAccountArgsV2: {
+                        data,
+                        updateAuthority: payer.publicKey,
+                        primarySaleHappened: true,
+                        isMutable: true
+                    }
+                }
+            )
+            : createCreateMetadataAccountV3Instruction(
                 {
                     metadata: metadataAddress,
                     mint,
@@ -138,21 +153,10 @@ export class MetadataManager {
                 }
             );
 
-            const transaction = new Transaction().add(instruction);
-            const signature = await sendAndConfirmTransaction(
-                this.connection,
-                transaction,
-                [payer],
-                { commitment: 'confirmed' }
-            );
-
-            return signature;
-        } catch (error: any) {
-            throw new Error(`Failed to create metadata: ${(error as any).message}`);
-        }
+        return new Transaction().add(instruction);
     }
 
-    async updateMetadata(
+    async setMetadata(
         mint: PublicKey,
         metadata: TokenMetadata,
         payer: Keypair
@@ -167,6 +171,10 @@ export class MetadataManager {
                 TOKEN_METADATA_PROGRAM_ID
             );
 
+            // Check if metadata already exists
+            const metadataAccountInfo = await this.connection.getAccountInfo(metadataAddress);
+            const isUpdate = metadataAccountInfo !== null;
+
             const data: DataV2 = {
                 name: metadata.name,
                 symbol: metadata.symbol,
@@ -177,20 +185,37 @@ export class MetadataManager {
                 uses: null
             };
 
-            const instruction = createUpdateMetadataAccountV2Instruction(
-                {
-                    metadata: metadataAddress,
-                    updateAuthority: payer.publicKey,
-                },
-                {
-                    updateMetadataAccountArgsV2: {
-                        data,
+            const instruction = isUpdate
+                ? createUpdateMetadataAccountV2Instruction(
+                    {
+                        metadata: metadataAddress,
                         updateAuthority: payer.publicKey,
-                        primarySaleHappened: true,
-                        isMutable: true
+                    },
+                    {
+                        updateMetadataAccountArgsV2: {
+                            data,
+                            updateAuthority: payer.publicKey,
+                            primarySaleHappened: true,
+                            isMutable: true
+                        }
                     }
-                }
-            );
+                )
+                : createCreateMetadataAccountV3Instruction(
+                    {
+                        metadata: metadataAddress,
+                        mint,
+                        mintAuthority: payer.publicKey,
+                        payer: payer.publicKey,
+                        updateAuthority: payer.publicKey,
+                    },
+                    {
+                        createMetadataAccountArgsV3: {
+                            data,
+                            isMutable: true,
+                            collectionDetails: null
+                        }
+                    }
+                );
 
             const transaction = new Transaction().add(instruction);
             const signature = await sendAndConfirmTransaction(
@@ -202,7 +227,23 @@ export class MetadataManager {
 
             return signature;
         } catch (error: any) {
-            throw new Error(`Failed to update metadata: ${(error as any).message}`);
+            throw new Error(`Failed to ${isUpdate ? 'update' : 'create'} metadata: ${(error as any).message}`);
         }
+    }
+
+    async createMetadata(
+        mint: PublicKey,
+        metadata: TokenMetadata,
+        payer: Keypair
+    ): Promise<string> {
+        return this.setMetadata(mint, metadata, payer);
+    }
+
+    async updateMetadata(
+        mint: PublicKey,
+        metadata: TokenMetadata,
+        payer: Keypair
+    ): Promise<string> {
+        return this.setMetadata(mint, metadata, payer);
     }
 }

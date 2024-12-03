@@ -13,6 +13,12 @@ export interface WalletConfig {
     lastUsed: string;
 }
 
+interface ValidationResult {
+    isValid: boolean;
+    warnings: string[];
+    errors: string[];
+}
+
 class WalletError extends Error {
     constructor(message: string, public readonly cause?: unknown) {
         super(message);
@@ -222,5 +228,38 @@ export class WalletManager {
                 error
             );
         }
+    }
+
+    // Add encryption for wallet storage
+    private static async encryptWallet(wallet: typeof Keypair): Promise<string> {
+        // Implementation of wallet encryption
+        const secretKey = wallet.secretKey.toString();
+        // This is a placeholder. In a real implementation, you would use proper encryption
+        return Buffer.from(secretKey).toString('base64');
+    }
+    
+    // Add wallet validation
+    static async validateWallet(wallet: typeof Keypair): Promise<ValidationResult> {
+        const result: ValidationResult = {
+            isValid: true,
+            warnings: [],
+            errors: []
+        };
+        
+        try {
+            // Basic validation checks
+            if (!wallet || !wallet.publicKey) {
+                result.isValid = false;
+                result.errors.push('Invalid wallet format');
+            }
+            
+            // Add more validation as needed
+            
+        } catch (error) {
+            result.isValid = false;
+            result.errors.push(`Validation error: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        
+        return result;
     }
 }
